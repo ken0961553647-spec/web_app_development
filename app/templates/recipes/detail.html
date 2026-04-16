@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-8 shadow-sm bg-white p-4 p-md-5 rounded">
+        <!-- Title & Manage Buttons -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+            <h1 class="mb-3 mb-md-0 fw-bold">{{ recipe.title }}</h1>
+            
+            {% if session.get('user_id') == recipe.user_id %}
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('recipes.edit_recipe_page', id=recipe.id) }}" class="btn btn-outline-primary btn-sm px-3">編輯</a>
+                <form action="{{ url_for('recipes.delete_recipe', id=recipe.id) }}" method="POST" onsubmit="return confirm('確定要刪除這份食譜嗎？這個操作無法復原。');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm px-3">刪除</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        
+        <p class="text-muted mb-4 small">分享時間：{{ recipe.created_at[:10] }} {% if recipe.created_at != recipe.updated_at %} (最後更新: {{ recipe.updated_at[:10] }}) {% endif %}</p>
+
+        <!-- Tags -->
+        {% if tags %}
+            <div class="mb-4">
+                {% for tag in tags %}
+                    <span class="badge bg-light text-dark border me-1 px-2 py-1">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Image -->
+        {% if recipe.image_url %}
+            <div class="mb-5 text-center">
+                <img src="{{ recipe.image_url }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 400px; object-fit: cover;" alt="Recipe Image">
+            </div>
+        {% endif %}
+
+        <!-- Ingredients container -->
+        <div class="card bg-light border-0 mb-5">
+            <div class="card-body p-4">
+                <h4 class="card-title text-success mb-3 fw-bold">📝 食材準備</h4>
+                <!-- 使用 white-space: pre-wrap 來呈現斷行 -->
+                <p class="card-text fs-5" style="white-space: pre-wrap;">{{ recipe.ingredients }}</p>
+            </div>
+        </div>
+
+        <!-- Steps container -->
+        <div class="mb-4">
+            <h4 class="text-primary mb-3 fw-bold">🍳 製作步驟</h4>
+            <div class="p-4 bg-white border rounded">
+                <p class="fs-5 mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ recipe.steps }}</p>
+            </div>
+        </div>
+
+        <div class="mt-5 border-top pt-3 text-center">
+            <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-link text-decoration-none px-0">← 返回食譜列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

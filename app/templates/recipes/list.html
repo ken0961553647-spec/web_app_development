@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    {% set is_search = request.args.get('q') %}
+    
+    {% if is_search %}
+        <h2 class="fw-bold">「{{ request.args.get('q') }}」的搜尋結果</h2>
+    {% else %}
+        {% if session.get('user_id') %}
+            <h2 class="fw-bold">⭐ 我的食譜收藏</h2>
+        {% else %}
+            <h2 class="fw-bold">🌐 最新公開食譜</h2>
+        {% endif %}
+    {% endif %}
+
+    {% if session.get('user_id') and not is_search %}
+        <a href="{{ url_for('recipes.new_recipe_page') }}" class="btn btn-primary shadow-sm">+ 新增筆記</a>
+    {% endif %}
+</div>
+
+{% if recipes %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for recipe in recipes %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 template-card">
+                {% if recipe.image_url %}
+                    <img src="{{ recipe.image_url }}" class="card-img-top" alt="Recipe Image" style="height: 220px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center opacity-75" style="height: 220px;">
+                        <span class="fs-5">未提供圖片 🍽️</span>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ recipe.title }}</h5>
+                    <p class="card-text text-truncate text-muted mb-0" style="max-height: 4.5rem; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        {{ recipe.ingredients | striptags }}
+                    </p>
+                </div>
+                <div class="card-footer bg-white border-top-0 pb-3 pt-0">
+                    <a href="{{ url_for('recipes.recipe_detail', id=recipe.id) }}" class="btn btn-outline-dark btn-sm w-100">查看完整食譜</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5 text-muted bg-white rounded shadow-sm">
+        <h4 class="mb-3">找不到任何食譜 😢</h4>
+        {% if is_search %}
+            <p>請嘗試使用其他關鍵字搜尋看看。</p>
+        {% elif session.get('user_id') %}
+            <p>您還沒有收藏任何食譜，點擊上方按鈕開始紀錄吧！</p>
+        {% else %}
+            <p>目前還沒有人分享食譜。<a href="{{ url_for('auth.register_page') }}">註冊並成為第一位分享者吧！</a></p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
